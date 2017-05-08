@@ -19,7 +19,7 @@ class BoardController(private val blockSize: Double,
   private var currentBlock: currentBlock =
     new currentBlock(new BlockNone(),Color.Gray, (0, 0))
 
-  def oneTurn(): (Boolean, Int) = {
+  def oneIteration(): (Boolean, Int) = {
     val fail = changeBlockPos(Down)
     val f = canMove()
     if (f || fail) {
@@ -49,10 +49,15 @@ class BoardController(private val blockSize: Double,
       gc.fillRect(tuple._2*blockSize, tuple._1*blockSize,
         blockSize-0.5, blockSize-0.5))
 
-  def drawBoard(gc: GraphicsContext): Unit = draw(gc)(board.calcBoardState())
+  def drawBoard(gc: GraphicsContext): Unit = {
+    gc.setFill(boardColor)
+    draw(gc)(board.calcBoardState())
+  }
 
-  def drawCurrentBlock(gc: GraphicsContext): Unit =
+  def drawCurrentBlock(gc: GraphicsContext): Unit = {
+    gc.setFill(currentBlock.getColor)
     draw(gc)(currentBlock.calcBlockPos())
+  }
 
   def changeBlockPos(key: Key): Boolean = {
     val diff = key match {
@@ -73,7 +78,8 @@ class BoardController(private val blockSize: Double,
 
   def changeAngle: Unit = {
     val bs = currentBlock.getbs
-    currentBlock.changeAngle(1)
+    val ret = currentBlock.changeAngle()
+    currentBlock.setbs(ret)
     if (canMove())
       currentBlock.setbs(bs)
   }

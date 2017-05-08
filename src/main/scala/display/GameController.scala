@@ -93,7 +93,7 @@ class GameController(private val canvas: Canvas,
   }
 
   def doOneIteration():Unit = {
-    val ret = boardController.oneTurn()
+    val ret = boardController.oneIteration()
     score += ret._2 * 100
     if(ret._1)
       makeBlock()

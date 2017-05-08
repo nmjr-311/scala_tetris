@@ -15,7 +15,7 @@ class Board(private val boardColSize: Int,
     bs(i) = new Array[Boolean](boardRowSize))
 
   def calcBoardState(): List[(Int, Int)] =
-    Board.blockToPosList((boardColSize-1, boardRowSize-1))(bs)(identity)
+    Board.blockToPosList((boardColSize-1, boardRowSize-1))(bs)
 
   def addBlockInBoard(ps : List[(Int, Int)]): Unit =
     ps.foreach(pos => {
@@ -74,7 +74,6 @@ class Board(private val boardColSize: Int,
 class currentBlock(private val block: Block,
                    private val color: Paint,
                    private var pos: (Int, Int)) {
-  private var angle: Int = 0
   def getPos: (Int, Int) = pos
   private var currentBs = block.bs
   def getbs = currentBs
@@ -87,29 +86,26 @@ class currentBlock(private val block: Block,
   def updatePos(pos: (Int, Int)): Unit = this.pos = pos
   //def calcBlockPos(): List[(Int, Int)] = Board.blockToPosList(pos)(block.bs)(identity)
   def calcBlockPos(p: (Int, Int) = pos) =
-    Board.blockToPosList((p._1 + block.size - 1, p._2 + block.size - 1))(currentBs)(identity)
+    Board.blockToPosList((p._1 + block.size - 1, p._2 + block.size - 1))(currentBs)
 
-  def changeAngle(diff: Int): Unit = {
-    angle = (angle+diff) % 4
-    val ret : Array[Array[Boolean]] = new Array[Array[Boolean]](4)
+  def changeAngle(): Array[Array[Boolean]] = {
+    val ret : Array[Array[Boolean]] = new Array[Array[Boolean]](block.size)
     for (i <- 0 until block.size) {
-      ret(i) = new Array[Boolean](4)
+      ret(i) = new Array[Boolean](block.size)
       for (j <- 0 until block.size) {
-        ret(i)(j) = currentBs(j)(3-i)
+        ret(i)(j) = currentBs(j)((block.size - 1)-i)
       }
     }
-    currentBs = ret
+    ret
+    //currentBs = ret
     //Board.printArray(ret)
   }
 
 }
 
 private object Board{
-  def tuplePlus(t1: (Int, Int), t2: (Int, Int)): (Int, Int)
-  = (t1._1 + t2._1, t1._2 + t2._2)
 
-  def blockToPosList(initPos: (Int, Int))(as: Array[Array[Boolean]])
-                    (f : (((Int, Int)) => (Int, Int))): List[(Int, Int)]
+  def blockToPosList(initPos: (Int, Int))(as: Array[Array[Boolean]]): List[(Int, Int)]
   = as.foldRight((Nil: List[List[(Int, Int)]], initPos._1))((ll, b1) => {
     val _ll: List[(Int, Int)] =
       ll.foldRight((Nil: List[(Int, Int)], initPos._2))((l, b2) => {
@@ -117,7 +113,7 @@ private object Board{
         else (b2._1, b2._2-1)
       })._1
     ((_ll :: b1._1), b1._2-1)
-  })._1.flatten.map(f)
+  })._1.flatten
 
   def printArray(ass: Array[Array[Boolean]]): Unit = {
     printf("  ")
